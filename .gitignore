@@ -8,3 +8,23 @@ terraform.tfstate.backup
 
 # Ignore any system files
 .DS_Store
+# Python
+__pycache__/
+*.py[cod]
+*.dist-info/
+env/
+venv/
+.venv/
+
+# Lambda build artifacts
+lambdas/*/bin/
+lambdas/*/boto3/
+lambdas/*/botocore/
+lambdas/*/s3transfer/
+lambdas/*/dateutil/
+lambdas/*/jmespath/
+lambdas/*/six.py
+lambdas/*/urllib3/
+lambdas/*/*.dist-info/
+lambdas/*/*.egg-info/
+*.zip
