@@ -2,7 +2,7 @@ resource "aws_lambda_function" "api_handler_lambda" {
   function_name = "api-handler"
   handler       = "main.lambda_handler"
   runtime       = "python3.9"
-  role          = aws_iam_role.lambda_exec_role.arn      # <-- FIXED HERE
+  role          = aws_iam_role.lambda_exec_role.arn      
   filename      = "${path.module}/api_handler.zip"
   timeout       = 30
 
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "sqs_trigger_lambda" {
   function_name = "sqs-trigger-cleanup"
   handler       = "main.lambda_handler"
   runtime       = "python3.9"
-  role          = aws_iam_role.lambda_exec_role.arn     # <-- FIXED HERE
+  role          = aws_iam_role.lambda_exec_role.arn     
   filename      = "${path.module}/sqs_trigger.zip"
   timeout       = 30
 
