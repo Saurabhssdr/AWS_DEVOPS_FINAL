@@ -1,118 +1,105 @@
-📄 AWS CSV Processing System
-📝 Description
-A fully serverless data pipeline on AWS that automates:
+# 📄 AWS CSV Processing System
  
-📤 Uploading CSV files via API Gateway
+## 📝 Description
  
-📊 Parsing and storing data in DynamoDB
+A fully **serverless data pipeline** on AWS that automates:
  
-🧹 Cleaning up files post-processing
-Provisioned entirely using Terraform as Infrastructure as Code (IaC).
+- 📤 Uploading CSV files via **API Gateway**
+- 📊 Parsing and storing records in **DynamoDB**
+- 🧹 Cleaning up uploaded files post-processing
  
-🧭 How It Works (Architecture Overview)
-🟩 API Gateway
-Receives file uploads from Postman or other clients.
+Provisioned entirely using **Terraform** as Infrastructure as Code (IaC).
+ ## 🧭 How It Works (Architecture Overview)
  
-🟨 Lambda
+### 🟩 API Gateway
+- Receives file uploads from **Postman** or any client.
  
-api-handler Lambda: Uploads the CSV to S3.
+### 🟨 Lambda
+- `api-handler` Lambda:
+  - Uploads the received CSV to **S3**
+- `s3-trigger` Lambda:
+  - Reads CSV file from **S3**
+  - Fetches **DynamoDB** table name from **Secrets Manager**
+  - Parses and stores data into **DynamoDB**
+  - Sends a **120-second delayed message** to **SQS**
+- `sqs-trigger` Lambda:
+  - Deletes the original CSV from **S3** after the delay
  
-s3-trigger Lambda:
+### 🟦 S3
+- Stores uploaded CSV files
+- Triggers `s3-trigger` Lambda on `PutObject` event
  
-Reads uploaded CSV from S3
+### 🟧 DynamoDB
+- Stores structured records parsed from CSV
  
-Fetches DynamoDB table name from Secrets Manager
+### 🟥 SQS
+- Serves as a delay queue
+- Triggers cleanup Lambda after 120 seconds
  
-Parses data and inserts into DynamoDB
+### 🟪 Secrets Manager
+- Securely stores the DynamoDB table name, accessed by Lambda
  
-Sends delayed message to SQS (120s)
+### ⚙️ CloudWatch
+- Captures logs of all Lambda executions for monitoring and debugging
  
-sqs-trigger Lambda:
+---
  
-Deletes CSV file from S3 after delay
+## 🧰 AWS Services Used
  
-🟦 S3
-Stores uploaded CSVs and triggers Lambda on file upload.
+- **Lambda** (3 functions: `api-handler`, `s3-trigger`, `sqs-trigger`)
+- **API Gateway**
+- **Amazon S3**
+- **Amazon DynamoDB**
+- **Amazon SQS**
+- **AWS Secrets Manager**
+- **Amazon CloudWatch**
+- **Terraform** (for Infrastructure as Code)
  
-🟧 DynamoDB
-Stores structured data extracted from CSV.
+---
  
-🟥 SQS
-Acts as a delay queue before triggering cleanup Lambda.
+## 🚀 How to Deploy (Getting Started)
  
-🟪 Secrets Manager
-Securely stores DynamoDB table name accessed by Lambda.
- 
-⚙️ CloudWatch
-Logs all Lambda executions for monitoring and debugging.
- 
-🧰 AWS Services Used
-Lambda (api-handler, s3-trigger, sqs-trigger)
- 
-API Gateway
- 
-Amazon S3
- 
-Amazon DynamoDB
- 
-Amazon SQS
- 
-AWS Secrets Manager
- 
-Amazon CloudWatch
- 
-Terraform (Infrastructure as Code)
- 
-🚀 How to Deploy (Getting Started)
-Clone the Repo
- 
-bash
-Copy code
+### 1. Clone the Repo
+```bash
 git clone https://github.com/Saurabhssdr/aws-csv-processing-system.git
-
 cd aws-csv-processing-system
-Configure AWS CLI
-Make sure AWS CLI is configured with appropriate IAM permissions:
+```
  
-bash
-Copy code
+### 2. Configure AWS CLI
+```bash
 aws configure
-Initialize Terraform
+```
  
-bash
-Copy code
+Ensure you have the appropriate IAM permissions.
+ 
+### 3. Initialize Terraform
+```bash
 terraform init
-Deploy Infrastructure
+```
  
-bash
-Copy code
+### 4. Deploy Infrastructure
+```bash
 terraform apply
-🔧 This will create all necessary AWS resources:
+```
  
-Lambda functions
+🔧 This command provisions all required AWS resources:
+- Lambda functions
+- API Gateway
+- S3 bucket
+- DynamoDB table
+- SQS queue
+- Secrets Manager entry
+- IAM roles
  
-API Gateway
+### 5. Upload CSV via Postman
+- Use a `POST` request to the generated **API Gateway endpoint**
+- Upload a `.csv` file as **form-data**
  
-S3 bucket
+---
  
-DynamoDB table
+## 📬 Output
  
-SQS queue
- 
-Secrets Manager entry
- 
-IAM roles
- 
-Upload CSV via Postman
- 
-Use POST request to the API Gateway endpoint
- 
-Upload .csv file as form-data
- 
-📬 Output
-✅ CSV data stored in DynamoDB
- 
-🗑️ CSV file deleted from S3 after 120 seconds
- 
-📄 Logs available in CloudWatch
+- ✅ Records from CSV inserted into **DynamoDB**
+- 🗑️ CSV file deleted from **S3** after 120 seconds
+- 📄 Execution logs available in **CloudWatch**
  
